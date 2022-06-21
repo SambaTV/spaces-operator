@@ -1,0 +1,6 @@
+golang 1.17.11
+helm 3.9.0
+jq 1.6
+kind 0.14.0
+kubectl 1.21.13
+make 4.3

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# This script installs the project development toolchain using asdf and tool
+# plugins and versions declared in the repository .tool-versions file as needed.
+#
+# It is intended to be run from the repository root directory.
+#
+# See https://asdf-vm.com/ for additional details on asdf and its usage.
+
+echo "Installing tools in .tool-versions"
+echo "=================================="
+cat .tool-versions
+
+echo
+echo "Ensuring asdf is installed"
+if [[ ! -d $HOME/.asdf ]]; then
+  echo "Installing asdf"
+  git clone https://github.com/asdf-vm/asdf.git "$HOME"/.asdf --branch v0.9.0
+  echo "Appending sourcing of asdf.sh script to $HOME/.bashrc"
+  echo "source $HOME/.asdf/asdf.sh" >> "$HOME"/.bashrc
+else
+  echo "asdf is already installed"
+fi
+
+echo
+echo "Ensuring all asdf plugins in .tool-versions are installed"
+source "$HOME"/.asdf/asdf.sh
+for name in $(< .tool-versions awk '{print $1}' | tr '\n' ' '); do
+  asdf plugin add "$name"
+done
+
+echo
+echo "Ensuring all asdf tools in .tool-versions are installed"
+asdf install
+
+echo
+echo "All tools installed"

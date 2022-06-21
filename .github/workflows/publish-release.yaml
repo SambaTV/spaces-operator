@@ -1,0 +1,74 @@
+name: Publish release
+
+on:
+  push:
+    tags:
+      - 1.*
+      - 0.*
+
+jobs:
+  verify-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.17.11'
+
+      - name: Lint and test app
+        run: make lint test
+
+  release-image:
+    needs: verify-app
+    runs-on: ubuntu-latest
+    steps:
+    - id: repo_name
+      uses: ASzc/change-string-case-action@v2
+      with:
+        string: ${{ github.repository }}
+
+    - name: Set up Docker buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: ${{ steps.repo_name.outputs.lowercase }}:${{ github.ref_name }}
+
+  release-chart:
+    needs: verify-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.1
+
+      - name: Release chart
+        uses: helm/chart-releaser-action@v1.4.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          charts_repo_url: "https://sambatv.github.io/charts"

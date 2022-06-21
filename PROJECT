@@ -1,0 +1,15 @@
+domain: spaces.samba.tv
+layout:
+- go.kubebuilder.io/v3
+projectName: spaces-operator
+repo: github.com/sambatv/spaces-operator
+resources:
+- api:
+    crdVersion: v1
+  controller: true
+  domain: spaces.samba.tv
+  group: spaces.samba.tv
+  kind: Team
+  path: github.com/sambatv/spaces-operator/apis/v1beta1
+  version: v1beta1
+version: "3"

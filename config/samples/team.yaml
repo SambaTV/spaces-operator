@@ -1,0 +1,12 @@
+apiVersion: spaces.samba.tv/v1beta1
+kind: Team
+metadata:
+  name: test
+spec:
+  namespace: test-ns
+  username: sample
+  groups:
+    - sample:group1
+    - sample:group2
+  description: A sample team
+  email: sample.user@example.com

@@ -1,0 +1,15 @@
+{{- if .Values.podDisruptionBudget.enabled -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  labels:
+    {{- include "spaces-operator.labels" . | nindent 4 }}
+    control-plane: controller-manager
+  name: {{ include "spaces-operator.fullname" . }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "spaces-operator.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

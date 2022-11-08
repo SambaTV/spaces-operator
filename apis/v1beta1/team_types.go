@@ -17,7 +17,6 @@ limitations under the License.
 package v1beta1
 
 import (
-	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,33 +28,20 @@ type TeamSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// The namespace of the Team resources
-	Namespace string `json:"namespace"`
+	// The namespaces of the Team resources
+	Namespaces []string `json:"namespaces"`
 
 	// The name of the Kubernetes user associated with the Team
 	Username string `json:"username"`
 
-	// The names of the Kubernetes Groups associated with the Team members
-	// +kubebuilder:validation:Optional
-	Groups []string `json:"groups"`
-
-	// The ClusterRolePolicy to bind to the Team ClusterRole
-	// +kubebuilder:validation:Optional
-	ClusterRolePolicyRules []rbacv1.PolicyRule `json:"clusterRolePolicyRules"`
-
 	// The names of ClusterRoles to bind to the Team namespace
-	// +kubebuilder:validation:Optional
-	ClusterRoleRefs []string `json:"clusterRoleRefs"`
+	ClusterRoles map[string]string `json:"clusterRoles"`
 
-	// The RolePolicy to bind to the Team namespaced Role
-	// +kubebuilder:validation:Optional
-	RolePolicyRules []rbacv1.PolicyRule `json:"rolePolicyRules"`
-
-	// A useful description
+	// A useful description of the Team
 	// +kubebuilder:validation:Optional
 	Description string `json:"description"`
 
-	// The email address of a contact person for the Kubernetes user
+	// The email address of a contact person for the Team
 	// +kubebuilder:validation:Optional
 	Email string `json:"email"`
 }
@@ -69,10 +55,9 @@ type TeamStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:resource:scope=Cluster
 //+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="Namespace",type=string,JSONPath=`.spec.namespace`
 //+kubebuilder:printcolumn:name="Username",type=string,JSONPath=`.spec.username`
-//+kubebuilder:printcolumn:name="Groups",type=string,JSONPath=`.spec.groups`
-//+kubebuilder:printcolumn:name="ClusterRoles",type=string,JSONPath=`.spec.clusterRoleRefs`
+//+kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.spec.namespaces`
+//+kubebuilder:printcolumn:name="ClusterRoles",type=string,JSONPath=`.spec.clusterRoles`
 //+kubebuilder:printcolumn:name="Email",type=string,JSONPath=`.spec.email`
 //+kubebuilder:printcolumn:name="Description",type=string,JSONPath=`.spec.description`
 

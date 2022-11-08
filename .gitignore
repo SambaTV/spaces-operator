@@ -29,6 +29,9 @@ __debug_bin
 # Packaged dist files
 dist/
 
+# direnv files
+.envrc
+
 # dotenv files
 *.env
 

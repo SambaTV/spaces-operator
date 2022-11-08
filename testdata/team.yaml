@@ -3,10 +3,11 @@ kind: Team
 metadata:
   name: sample
 spec:
-  namespace: sample
   username: sample
-  groups:
-    - sample:group1
-    - sample:group2
+  namespaces:
+    - sample1
+    - sample2
+  clusterRoles:
+    default: team-cluster-role
   description: A sample team
   email: sample.user@example.com

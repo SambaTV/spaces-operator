@@ -91,204 +91,110 @@ func (r *TeamReconciler) Reconcile(ctx context.Context, req ctrlruntime.Request)
 	}
 	log.Info("fetched team")
 
-	// Ensure namespace for Team resources exists.
-	teamNamespace, err := kubeClient.CoreV1().Namespaces().Get(ctx, team.Spec.Namespace, apimetav1.GetOptions{})
-	if err != nil {
-		statusErr, ok := err.(*apierrors.StatusError)
-		if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-			log.Error(err, "failure fetching team namespace")
-			return ctrlruntime.Result{}, err
-		}
-		// Create team namespace.
-		teamNamespace = &corev1.Namespace{
-			ObjectMeta: apimetav1.ObjectMeta{
-				Name:   team.Spec.Namespace,
-				Labels: controllerLabels,
-			},
-		}
-		teamNamespace, err = kubeClient.CoreV1().Namespaces().Create(ctx, teamNamespace, apimetav1.CreateOptions{})
-		if err != nil {
-			log.Error(err, "failure creating team namespace")
-			return ctrlruntime.Result{}, err
-		}
-		log.Info("created team namespace", "name", teamNamespace.Name)
-	} else {
-		log.Info("fetched team namespace", "name", teamNamespace.Name)
-	}
-
-	// Ensure unmanaged Team Role exists.
-	teamRoleName := getTeamResourceName(teamName)
-	teamRole, err := kubeClient.RbacV1().Roles(teamNamespace.Name).Get(ctx, teamRoleName, apimetav1.GetOptions{})
-	if err != nil {
-		statusErr, ok := err.(*apierrors.StatusError)
-		if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-			log.Error(err, "failure fetching team role", "name", teamRoleName, "namespace", teamNamespace.Name)
-			return ctrlruntime.Result{}, err
-		}
-		// Create Team implicit Role.
-		rules := defaultRolePolicyRules
-		if len(team.Spec.RolePolicyRules) > 0 {
-			rules = team.Spec.RolePolicyRules
-		}
-		teamRole = &rbacv1.Role{
-			ObjectMeta: apimetav1.ObjectMeta{
-				Name:      teamRoleName,
-				Namespace: teamNamespace.Name,
-				Labels:    controllerLabels,
-			},
-			Rules: rules,
-		}
-		teamRole, err = kubeClient.RbacV1().Roles(teamNamespace.Name).Create(ctx, teamRole, apimetav1.CreateOptions{})
-		if err != nil {
-			log.Error(err, "failure creating team role", "name", teamRoleName, "namespace", teamNamespace.Name)
-			return ctrlruntime.Result{}, err
-		}
-		log.Info("created team role")
-	} else {
-		log.Info("fetched team role", "name", teamRole.Name, "namespace", teamRole.Namespace)
-	}
-
-	// Ensure unmanaged Team ClusterRole exists.
-	teamClusterRoleName := getTeamResourceName(teamName)
-	teamClusterRole, err := kubeClient.RbacV1().ClusterRoles().Get(ctx, teamClusterRoleName, apimetav1.GetOptions{})
-	if err != nil {
-		statusErr, ok := err.(*apierrors.StatusError)
-		if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-			log.Error(err, "failure fetching team clusterrole", "clusterrole", teamClusterRoleName)
-			return ctrlruntime.Result{}, err
-		}
-		// Create Team implicit ClusterRole.
-		rules := defaultClusterRolePolicyRules
-		if len(team.Spec.ClusterRolePolicyRules) > 0 {
-			rules = team.Spec.ClusterRolePolicyRules
-		}
-		teamClusterRole = &rbacv1.ClusterRole{
-			ObjectMeta: apimetav1.ObjectMeta{
-				Name:      teamClusterRoleName,
-				Namespace: teamNamespace.Name,
-				Labels:    controllerLabels,
-			},
-			Rules: rules,
-		}
-		teamClusterRole, err = kubeClient.RbacV1().ClusterRoles().Create(ctx, teamClusterRole, apimetav1.CreateOptions{})
-		if err != nil {
-			log.Error(err, "failure creating team clusterrole", "name", teamClusterRoleName)
-			return ctrlruntime.Result{}, err
-		}
-		log.Info("created team clusterrole", "name", teamClusterRole.Name)
-	} else {
-		log.Info("fetched team clusterrole", "name", teamClusterRole.Name)
-	}
-
-	// Ensure unmanaged Team RoleBinding exists.
-	teamRoleBindingName := getTeamResourceName(teamName)
-	teamRoleBinding, err := kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Get(ctx, teamRoleBindingName, apimetav1.GetOptions{})
-	if err != nil {
-		statusErr, ok := err.(*apierrors.StatusError)
-		if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-			log.Error(err, "failure fetching team rolebinding", "name", teamRoleBindingName, "namespace", teamNamespace.Name)
-			return ctrlruntime.Result{}, err
-		}
-		// Create Team RoleBinding.
-		teamRoleBinding = &rbacv1.RoleBinding{
-			ObjectMeta: apimetav1.ObjectMeta{
-				Name:      teamRoleBindingName,
-				Namespace: teamNamespace.Name,
-				Labels:    controllerLabels,
-			},
-			RoleRef: rbacv1.RoleRef{
-				APIGroup: RbacAPIGroup,
-				Kind:     "Role",
-				Name:     teamRole.Name,
-			},
-		}
-		teamRoleBinding, err = kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Create(ctx, teamRoleBinding, apimetav1.CreateOptions{})
-		if err != nil {
-			log.Error(err, "failure creating team rolebinding", "name", teamRoleBindingName, "namespace", teamNamespace.Name)
-			return ctrlruntime.Result{}, err
-		}
-		log.Info("created team rolebinding", "name", teamRoleBinding.Name, "namespace", teamRoleBinding.Namespace)
-	} else {
-		log.Info("fetched team rolebinding", "name", teamRoleBinding.Name, "namespace", teamRoleBinding.Namespace)
-	}
-
-	// Ensure unmanaged Team ClusterRoleBinding exists.
-	teamClusterRoleBindingName := getTeamResourceName(teamName)
-	teamClusterRoleBinding, err := kubeClient.RbacV1().ClusterRoleBindings().Get(ctx, teamClusterRoleBindingName, apimetav1.GetOptions{})
-	if err != nil {
-		statusErr, ok := err.(*apierrors.StatusError)
-		if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-			log.Error(err, "failure fetching team clusterrolebinding", "name", teamClusterRoleBindingName)
-			return ctrlruntime.Result{}, err
-		}
-		// Create Team ClusterRoleBinding.
-		teamClusterRoleBinding = &rbacv1.ClusterRoleBinding{
-			ObjectMeta: apimetav1.ObjectMeta{
-				Name:   teamClusterRoleBindingName,
-				Labels: controllerLabels,
-			},
-			Subjects: []rbacv1.Subject{
-				{
-					APIGroup:  RbacAPIGroup,
-					Kind:      "User",
-					Name:      team.Spec.Username,
-					Namespace: teamNamespace.Name,
-				},
-			},
-			RoleRef: rbacv1.RoleRef{
-				APIGroup: RbacAPIGroup,
-				Kind:     "ClusterRole",
-				Name:     teamClusterRole.Name,
-			},
-		}
-		teamClusterRoleBinding, err = kubeClient.RbacV1().ClusterRoleBindings().Create(ctx, teamClusterRoleBinding, apimetav1.CreateOptions{})
-		if err != nil {
-			log.Error(err, "failure creating team clusterrolebinding", "name", teamClusterRoleBindingName)
-			return ctrlruntime.Result{}, err
-		}
-		log.Info("created team clusterrolebinding", "name", teamClusterRoleBinding.Name)
-	} else {
-		log.Info("fetched team clusterrolebinding", "name", teamClusterRoleBinding.Name)
-	}
-
-	// Ensure extra ClusterRoleBindings for Team, if any, exists.
-	for _, extraTeamClusterRole := range team.Spec.ClusterRoleRefs {
-		teamClusterRoleBindingName := getTeamResourceName(extraTeamClusterRole)
-		teamClusterRoleBinding, err := kubeClient.RbacV1().ClusterRoleBindings().Get(ctx, teamClusterRoleBindingName, apimetav1.GetOptions{})
+	// Ensure namespaces for Team resources exists.
+	for _, namespaceName := range team.Spec.Namespaces {
+		// Ensure namespace for Team resources exists.
+		teamNamespace, err := kubeClient.CoreV1().Namespaces().Get(ctx, namespaceName, apimetav1.GetOptions{})
 		if err != nil {
 			statusErr, ok := err.(*apierrors.StatusError)
 			if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-				log.Error(err, "failure fetching team clusterrolebinding", "name", teamClusterRoleBindingName)
+				log.Error(err, "failure fetching team namespace")
 				return ctrlruntime.Result{}, err
 			}
-			// Create Team ClusterRoleBinding.
-			teamClusterRoleBinding = &rbacv1.ClusterRoleBinding{
+			// Create team namespace.
+			teamNamespace = &corev1.Namespace{
 				ObjectMeta: apimetav1.ObjectMeta{
-					Name:   teamClusterRoleBindingName,
+					Name:   namespaceName,
 					Labels: controllerLabels,
+				},
+			}
+			teamNamespace, err = kubeClient.CoreV1().Namespaces().Create(ctx, teamNamespace, apimetav1.CreateOptions{})
+			if err != nil {
+				log.Error(err, "failure creating team namespace")
+				return ctrlruntime.Result{}, err
+			}
+			log.Info("created team namespace", "name", teamNamespace.Name)
+		} else {
+			log.Info("fetched team namespace", "name", teamNamespace.Name)
+		}
+
+		// Ensure team rolebindings for each clusterrole exist.
+		for key, clusterRoleName := range team.Spec.ClusterRoles {
+			// Check if it exists.
+			_, err := kubeClient.RbacV1().ClusterRoles().Get(ctx, clusterRoleName, apimetav1.GetOptions{})
+			if err != nil {
+				statusErr, ok := err.(*apierrors.StatusError)
+				if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
+					log.Error(err, "failure fetching clusterrole", "clusterrole", clusterRoleName)
+					return ctrlruntime.Result{}, err
+				}
+			}
+
+			// Create it when not found.
+			roleBindingName := fmt.Sprintf("%s-team-%s", teamName, key)
+			roleBinding, err := kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Get(ctx, roleBindingName, apimetav1.GetOptions{})
+			if err != nil {
+				statusErr, ok := err.(*apierrors.StatusError)
+				if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
+					log.Error(err, "failure fetching team rolebinding", "name", roleBindingName, "namespace", teamNamespace.Name)
+					return ctrlruntime.Result{}, err
+				}
+
+				roleBinding = &rbacv1.RoleBinding{
+					ObjectMeta: apimetav1.ObjectMeta{
+						Name:      roleBindingName,
+						Namespace: teamNamespace.Name,
+						Labels:    controllerLabels,
+					},
+					Subjects: []rbacv1.Subject{
+						{
+							Kind:      "User",
+							APIGroup:  "rbac.authorization.k8s.io",
+							Name:      team.Name,
+							Namespace: teamNamespace.Name,
+						},
+					},
+					RoleRef: rbacv1.RoleRef{
+						APIGroup: RbacAPIGroup,
+						Kind:     "ClusterRole",
+						Name:     clusterRoleName,
+					},
+				}
+				roleBinding, err = kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Create(ctx, roleBinding, apimetav1.CreateOptions{})
+				if err != nil {
+					log.Error(err, "failure creating team rolebinding", "name", roleBindingName, "namespace", teamNamespace.Name)
+					return ctrlruntime.Result{}, err
+				}
+				log.Info("created team rolebinding", "name", roleBinding.Name, "namespace", roleBinding.Namespace)
+				continue
+			}
+
+			// Update it when found.
+			roleBinding = &rbacv1.RoleBinding{
+				ObjectMeta: apimetav1.ObjectMeta{
+					Name:      roleBindingName,
+					Namespace: teamNamespace.Name,
+					Labels:    controllerLabels,
 				},
 				Subjects: []rbacv1.Subject{
 					{
-						APIGroup:  RbacAPIGroup,
 						Kind:      "User",
-						Name:      team.Spec.Username,
+						APIGroup:  "rbac.authorization.k8s.io",
+						Name:      team.Name,
 						Namespace: teamNamespace.Name,
 					},
 				},
 				RoleRef: rbacv1.RoleRef{
 					APIGroup: RbacAPIGroup,
 					Kind:     "ClusterRole",
-					Name:     teamClusterRole.Name,
+					Name:     clusterRoleName,
 				},
 			}
-			teamClusterRoleBinding, err = kubeClient.RbacV1().ClusterRoleBindings().Create(ctx, teamClusterRoleBinding, apimetav1.CreateOptions{})
+			_, err = kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Update(ctx, roleBinding, apimetav1.UpdateOptions{})
 			if err != nil {
-				log.Error(err, "failure creating team clusterrolebinding", "name", teamClusterRoleBindingName)
+				log.Error(err, "failure updating team rolebinding", "name", roleBindingName, "namespace", teamNamespace.Name)
 				return ctrlruntime.Result{}, err
 			}
-			log.Info("created team clusterrolebinding", "name", teamClusterRoleBinding.Name)
-		} else {
-			log.Info("fetched team clusterrolebinding", "name", teamClusterRoleBinding.Name)
 		}
 	}
 
@@ -301,11 +207,6 @@ func (r *TeamReconciler) SetupWithManager(mgr ctrlruntime.Manager) error {
 	return ctrlruntime.NewControllerManagedBy(mgr).
 		For(&v1beta1.Team{}).
 		Complete(r)
-}
-
-// getTeamResourceName returns a decorated name for a team resource.
-func getTeamResourceName(resource string) string {
-	return fmt.Sprintf("%s-%s", resource, "team")
 }
 
 // ErrTeamResourceNotFound indicates a Team resource was not found.
@@ -330,186 +231,4 @@ const RbacAPIGroup = "rbac.authorization.k8s.io"
 // controllerLabels are the labels added to all objects created by Team controller.
 var controllerLabels = map[string]string{
 	"app.kubernetes.io/created-by": "spaces-operator.samba.tv",
-}
-
-// defaultClusterRolePolicyRules contains the default PolicyRules for the Team
-// ClusterRole initially created by this controller but independent of the
-// lifetime of the Team.
-var defaultClusterRolePolicyRules = []rbacv1.PolicyRule{
-	{
-		APIGroups: []string{""}, // the core/v1 group
-		Resources: []string{
-			"namespaces",
-			"namespaces/finalize",
-			"namespaces/status",
-			"nodes",
-			"nodes/proxy",
-			"nodes/status",
-			"persistentvolumes",
-			"persistentvolumes/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-		},
-	},
-	{
-		APIGroups: []string{"apiextensions.k8s.io"},
-		Resources: []string{
-			"customresourcedefinitions",
-			"customresourcedefinitions/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-		},
-	},
-	{
-		APIGroups: []string{RbacAPIGroup},
-		Resources: []string{
-			"clusterrolebindings",
-			"clusterroles",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-		},
-	},
-}
-
-// defaultRolePolicyRules contains the default PolicyRules for the Team Role
-// initially created by this controller but independent of the lifetime of the Team.
-var defaultRolePolicyRules = []rbacv1.PolicyRule{
-	{
-		APIGroups: []string{""}, // the core/v1 group
-		Resources: []string{
-			"bindings",
-			"configmaps",
-			"endpoints",
-			"events",
-			"persistentvolumeclaims",
-			"persistentvolumeclaims/status",
-			"pods",
-			"pods/attach",
-			"pods/binding",
-			"pods/eviction",
-			"pods/exec",
-			"pods/log",
-			"pods/portforward",
-			"pods/proxy",
-			"pods/status",
-			"replicationcontrollers",
-			"replicationcontrollers/scale",
-			"replicationcontrollers/status",
-			"resourcequotas",
-			"resourcequotas/status",
-			"secrets",
-			"serviceaccounts",
-			"serviceaccounts/token",
-			"services",
-			"services/proxy",
-			"services/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"patch",
-			"delete",
-		},
-	},
-	{
-		APIGroups: []string{"apps"},
-		Resources: []string{
-			"controllerrevisions",
-			"daemonsets",
-			"daemonsets/status",
-			"deployments",
-			"deployments/scale",
-			"deployments/status",
-			"replicasets",
-			"replicasets/scale",
-			"replicasets/status",
-			"statefulsets",
-			"statefulsets/scale",
-			"statefulsets/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"patch",
-			"delete",
-		},
-	},
-	{
-		APIGroups: []string{"autoscaling"},
-		Resources: []string{
-			"horizontalpodautoscalers",
-			"horizontalpodautoscalers/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"patch",
-			"delete",
-		},
-	},
-	{
-		APIGroups: []string{"batch"},
-		Resources: []string{
-			"cronjobs",
-			"cronjobs/status",
-			"jobs",
-			"jobs/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"patch",
-			"delete",
-		},
-	},
-	{
-		APIGroups: []string{"networking.k8s.io"},
-		Resources: []string{
-			"ingressclasses",
-			"ingresses",
-			"ingresses/status",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"patch",
-			"delete",
-		},
-	},
-	{
-		APIGroups: []string{RbacAPIGroup},
-		Resources: []string{
-			"rolebindings",
-			"roles",
-		},
-		Verbs: []string{
-			"get",
-			"list",
-			"watch",
-		},
-	},
 }

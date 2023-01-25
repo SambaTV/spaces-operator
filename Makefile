@@ -70,11 +70,8 @@ CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Install controller-gen locally if necessary
 	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1)
 
-KUSTOMIZE = $(shell pwd)/bin/kustomize
-
-.PHONY: kustomize
-kustomize: ## Install kustomize locally if necessary
-	$(call go-get-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v3@v3.8.7)
+#KUSTOMIZE = $(shell pwd)/bin/kustomize
+KUSTOMIZE = kubectl kustomize
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -85,7 +82,7 @@ TMP_DIR=$$(mktemp -d) ;\
 cd $$TMP_DIR ;\
 go mod init tmp ;\
 echo "Downloading $(2)" ;\
-GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
+GOBIN=$(PROJECT_DIR)/bin go install $(2) ;\
 rm -rf $$TMP_DIR ;\
 }
 endef
@@ -132,21 +129,21 @@ clean: ## Clean build artifacts
 ##@ Deployment
 
 .PHONY: install
-install: manifests kustomize ## Install operator CRDs in cluster
-	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+install: manifests ## Install operator CRDs in cluster
+	$(KUSTOMIZE) config/crd | kubectl apply -f -
 
 .PHONY: uninstall
-uninstall: manifests kustomize ## Uninstall operator CRDs in cluster
-	$(KUSTOMIZE) build config/crd | kubectl delete --ignore-not-found -f -
+uninstall: manifests ## Uninstall operator CRDs in cluster
+	$(KUSTOMIZE) config/crd | kubectl delete --ignore-not-found -f -
 
 .PHONY: deploy
-deploy: manifests kustomize ## Deploy operator manager in cluster
+deploy: manifests ## Deploy operator manager in cluster
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	$(KUSTOMIZE) config/default | kubectl apply -f -
 
 .PHONY: undeploy
 undeploy: ## Undeploy operator manager in cluster
-	$(KUSTOMIZE) build config/default | kubectl delete -f -
+	$(KUSTOMIZE) config/default | kubectl delete -f -
 
 ##@ Docker
 

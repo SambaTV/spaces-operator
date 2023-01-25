@@ -24,7 +24,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-GOVERSION ?= 1.17
+GOVERSION ?= 1.19
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.

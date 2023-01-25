@@ -14,16 +14,13 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.namespace
-      name: Namespace
-      type: string
     - jsonPath: .spec.username
       name: Username
       type: string
-    - jsonPath: .spec.groups
-      name: Groups
+    - jsonPath: .spec.namespaces
+      name: Namespaces
       type: string
-    - jsonPath: .spec.clusterRoleRefs
+    - jsonPath: .spec.clusterRoles
       name: ClusterRoles
       type: string
     - jsonPath: .spec.email
@@ -48,98 +45,28 @@ spec:
           spec:
             description: TeamSpec defines the desired state of Team
             properties:
-              clusterRolePolicyRules:
-                description: The ClusterRolePolicy to bind to the Team ClusterRole
-                items:
-                  description: PolicyRule holds information that describes a policy rule, but does not contain information about who the rule applies to or which namespace the rule applies to.
-                  properties:
-                    apiGroups:
-                      description: APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.
-                      items:
-                        type: string
-                      type: array
-                    nonResourceURLs:
-                      description: NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding. Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-                      items:
-                        type: string
-                      type: array
-                    resourceNames:
-                      description: ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-                      items:
-                        type: string
-                      type: array
-                    resources:
-                      description: Resources is a list of resources this rule applies to.  ResourceAll represents all resources.
-                      items:
-                        type: string
-                      type: array
-                    verbs:
-                      description: Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule.  VerbAll represents all kinds.
-                      items:
-                        type: string
-                      type: array
-                  required:
-                  - verbs
-                  type: object
-                type: array
-              clusterRoleRefs:
+              clusterRoles:
                 description: The names of ClusterRoles to bind to the Team namespace
                 items:
                   type: string
                 type: array
               description:
-                description: A useful description
+                description: A useful description of the Team
                 type: string
               email:
-                description: The email address of a contact person for the Kubernetes user
+                description: The email address of a contact person for the Team
                 type: string
-              groups:
-                description: The names of the Kubernetes Groups associated with the Team members
+              namespaces:
+                description: The namespaces of the Team resources
                 items:
                   type: string
-                type: array
-              namespace:
-                description: The namespace of the Team resources
-                type: string
-              rolePolicyRules:
-                description: The RolePolicy to bind to the Team namespaced Role
-                items:
-                  description: PolicyRule holds information that describes a policy rule, but does not contain information about who the rule applies to or which namespace the rule applies to.
-                  properties:
-                    apiGroups:
-                      description: APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.
-                      items:
-                        type: string
-                      type: array
-                    nonResourceURLs:
-                      description: NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding. Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-                      items:
-                        type: string
-                      type: array
-                    resourceNames:
-                      description: ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
-                      items:
-                        type: string
-                      type: array
-                    resources:
-                      description: Resources is a list of resources this rule applies to.  ResourceAll represents all resources.
-                      items:
-                        type: string
-                      type: array
-                    verbs:
-                      description: Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule.  VerbAll represents all kinds.
-                      items:
-                        type: string
-                      type: array
-                  required:
-                  - verbs
-                  type: object
                 type: array
               username:
                 description: The name of the Kubernetes user associated with the Team
                 type: string
             required:
-            - namespace
+            - clusterRoles
+            - namespaces
             - username
             type: object
           status:

@@ -68,14 +68,14 @@ CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 
 .PHONY: controller-gen
 controller-gen: ## Install controller-gen locally if necessary
-	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1)
+	$(call go-install,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1)
 
 #KUSTOMIZE = $(shell pwd)/bin/kustomize
 KUSTOMIZE = kubectl kustomize
 
-# go-get-tool will 'go get' any package $2 and install it to $1.
+# go-install will 'go install' any package $2 at path $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
-define go-get-tool
+define go-install
 @[ -f $(1) ] || { \
 set -e ;\
 TMP_DIR=$$(mktemp -d) ;\

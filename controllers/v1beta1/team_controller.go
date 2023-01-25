@@ -40,18 +40,18 @@ type TeamReconciler struct {
 	Scheme *apiruntime.Scheme
 }
 
-//+kubebuilder:rbac:groups=core,resources=namespaces;namespaces/finalize;namespaces/status,verbs=get;list;watch;create;update;patch
-//+kubebuilder:rbac:groups=core,resources=nodes;nodes/proxy;nodes/status;persistentvolumes;persistentvolumes/status,verbs=get;list;watch
-//+kubebuilder:rbac:groups=core,resources=bindings;configmaps;endpoints;events;persistentvolumeclaims;persistentvolumeclaims/status;pods;pods/attach;pods/binding;pods/eviction;pods/exec;pods/log;pods/portforward;pods/proxy;pods/status;replicasets;replicationcontrollers;replicationcontrollers/scale;replicationcontrollers/status;resourcequotas;resourcequotas/status;secrets;serviceaccounts;serviceaccounts/token;services;services/proxy;services/status,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions;customresourcedefinitions/status,verbs=get;list;watch
-//+kubebuilder:rbac:groups=apps,resources=controllerrevisions;daemonsets;daemonsets/status;deployments;deployments/scale;deployments/status;replicasets;replicasets/scale;replicasets/status;statefulsets;statefulsets/scale;statefulsets/status,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=autoscaling,resources=horizontalpodautoscalers;horizontalpodautoscalers/status,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=batch,resources=cronjobs;cronjobs/status;jobs;jobs/status,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings;roles;rolebindings,verbs=get;list;watch;create;update;patch
-//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingressclasses;ingresses;ingresses/status,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=spaces.samba.tv,resources=teams,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=spaces.samba.tv,resources=teams/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=spaces.samba.tv,resources=teams/finalizers,verbs=update
+// +kubebuilder:rbac:groups=core,resources=namespaces;namespaces/finalize;namespaces/status,verbs=get;list;watch;create;update;patch
+// +kubebuilder:rbac:groups=core,resources=nodes;nodes/proxy;nodes/status;persistentvolumes;persistentvolumes/status,verbs=get;list;watch
+// +kubebuilder:rbac:groups=core,resources=bindings;configmaps;endpoints;events;persistentvolumeclaims;persistentvolumeclaims/status;pods;pods/attach;pods/binding;pods/eviction;pods/exec;pods/log;pods/portforward;pods/proxy;pods/status;replicasets;replicationcontrollers;replicationcontrollers/scale;replicationcontrollers/status;resourcequotas;resourcequotas/status;secrets;serviceaccounts;serviceaccounts/token;services;services/proxy;services/status,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions;customresourcedefinitions/status,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=controllerrevisions;daemonsets;daemonsets/status;deployments;deployments/scale;deployments/status;replicasets;replicasets/scale;replicasets/status;statefulsets;statefulsets/scale;statefulsets/status,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=autoscaling,resources=horizontalpodautoscalers;horizontalpodautoscalers/status,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=batch,resources=cronjobs;cronjobs/status;jobs;jobs/status,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings;roles;rolebindings,verbs=get;list;watch;create;update;patch
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingressclasses;ingresses;ingresses/status,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=spaces.samba.tv,resources=teams,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=spaces.samba.tv,resources=teams/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=spaces.samba.tv,resources=teams/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -119,7 +119,7 @@ func (r *TeamReconciler) Reconcile(ctx context.Context, req ctrlruntime.Request)
 		}
 
 		// Ensure team rolebindings for each clusterrole exist.
-		for key, clusterRoleName := range team.Spec.ClusterRoles {
+		for _, clusterRoleName := range team.Spec.ClusterRoles {
 			// Check if it exists.
 			_, err := kubeClient.RbacV1().ClusterRoles().Get(ctx, clusterRoleName, apimetav1.GetOptions{})
 			if err != nil {
@@ -130,20 +130,20 @@ func (r *TeamReconciler) Reconcile(ctx context.Context, req ctrlruntime.Request)
 				}
 			}
 
-			// Create it when not found.
-			roleBindingName := fmt.Sprintf("%s-team-%s", teamName, key)
-			roleBinding, err := kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Get(ctx, roleBindingName, apimetav1.GetOptions{})
+			// Create rolebinding when not found.
+			roleBindingName := fmt.Sprintf("%s-team-%s", teamName, clusterRoleName)
+			roleBinding, err := kubeClient.RbacV1().RoleBindings(namespaceName).Get(ctx, roleBindingName, apimetav1.GetOptions{})
 			if err != nil {
 				statusErr, ok := err.(*apierrors.StatusError)
 				if !ok || (ok && statusErr.ErrStatus.Reason != "NotFound") {
-					log.Error(err, "failure fetching team rolebinding", "name", roleBindingName, "namespace", teamNamespace.Name)
+					log.Error(err, "failure fetching team rolebinding", "name", roleBindingName, "namespace", namespaceName)
 					return ctrlruntime.Result{}, err
 				}
 
 				roleBinding = &rbacv1.RoleBinding{
 					ObjectMeta: apimetav1.ObjectMeta{
 						Name:      roleBindingName,
-						Namespace: teamNamespace.Name,
+						Namespace: namespaceName,
 						Labels:    controllerLabels,
 					},
 					Subjects: []rbacv1.Subject{
@@ -151,7 +151,7 @@ func (r *TeamReconciler) Reconcile(ctx context.Context, req ctrlruntime.Request)
 							Kind:      "User",
 							APIGroup:  "rbac.authorization.k8s.io",
 							Name:      team.Name,
-							Namespace: teamNamespace.Name,
+							Namespace: namespaceName,
 						},
 					},
 					RoleRef: rbacv1.RoleRef{
@@ -160,11 +160,17 @@ func (r *TeamReconciler) Reconcile(ctx context.Context, req ctrlruntime.Request)
 						Name:     clusterRoleName,
 					},
 				}
-				roleBinding, err = kubeClient.RbacV1().RoleBindings(teamNamespace.Name).Create(ctx, roleBinding, apimetav1.CreateOptions{})
+				err := ctrlruntime.SetControllerReference(&team, roleBinding, r.Scheme)
 				if err != nil {
-					log.Error(err, "failure creating team rolebinding", "name", roleBindingName, "namespace", teamNamespace.Name)
+					log.Error(err, "failure setting controller reference", "team", teamName, "rolebinding", roleBindingName, "namespace", namespaceName)
 					return ctrlruntime.Result{}, err
 				}
+				err = r.Create(ctx, roleBinding)
+				if err != nil {
+					log.Error(err, "failure creating rolebinding", "team", teamName, "rolebinding", roleBindingName, "namespace", namespaceName)
+					return ctrlruntime.Result{}, err
+				}
+
 				log.Info("created team rolebinding", "name", roleBinding.Name, "namespace", roleBinding.Namespace)
 				continue
 			}

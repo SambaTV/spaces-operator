@@ -1,5 +1,5 @@
 # Build the controller by default.
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL := help
 
 # Configure app identity from project metadata.
 APP_NAME ?= $(shell cat APP)

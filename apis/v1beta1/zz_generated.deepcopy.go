@@ -94,10 +94,8 @@ func (in *TeamSpec) DeepCopyInto(out *TeamSpec) {
 	}
 	if in.ClusterRoles != nil {
 		in, out := &in.ClusterRoles, &out.ClusterRoles
-		*out = make(map[string]string, len(*in))
-		for key, val := range *in {
-			(*out)[key] = val
-		}
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 }
 

@@ -53,10 +53,10 @@ spec:
             description: TeamSpec defines the desired state of Team
             properties:
               clusterRoles:
-                additionalProperties:
-                  type: string
                 description: The names of ClusterRoles to bind to the Team namespace
-                type: object
+                items:
+                  type: string
+                type: array
               description:
                 description: A useful description of the Team
                 type: string

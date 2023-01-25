@@ -35,7 +35,7 @@ type TeamSpec struct {
 	Username string `json:"username"`
 
 	// The names of ClusterRoles to bind to the Team namespace
-	ClusterRoles map[string]string `json:"clusterRoles"`
+	ClusterRoles []string `json:"clusterRoles"`
 
 	// A useful description of the Team
 	// +kubebuilder:validation:Optional
@@ -52,14 +52,14 @@ type TeamStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:resource:scope=Cluster
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="Username",type=string,JSONPath=`.spec.username`
-//+kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.spec.namespaces`
-//+kubebuilder:printcolumn:name="ClusterRoles",type=string,JSONPath=`.spec.clusterRoles`
-//+kubebuilder:printcolumn:name="Email",type=string,JSONPath=`.spec.email`
-//+kubebuilder:printcolumn:name="Description",type=string,JSONPath=`.spec.description`
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Username",type=string,JSONPath=`.spec.username`
+// +kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.spec.namespaces`
+// +kubebuilder:printcolumn:name="ClusterRoles",type=string,JSONPath=`.spec.clusterRoles`
+// +kubebuilder:printcolumn:name="Email",type=string,JSONPath=`.spec.email`
+// +kubebuilder:printcolumn:name="Description",type=string,JSONPath=`.spec.description`
 
 // Team is the Schema for the teams API
 type Team struct {
@@ -70,7 +70,7 @@ type Team struct {
 	Status TeamStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // TeamList contains a list of Team
 type TeamList struct {

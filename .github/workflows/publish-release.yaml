@@ -21,7 +21,7 @@ jobs:
           go-version: '1.19.5'
 
       - name: Lint and test app
-        run: make lint test
+        run: make controller-gen lint test
 
   release-image:
     needs: verify-app

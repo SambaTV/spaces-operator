@@ -47,7 +47,7 @@ jobs:
         tags: ${{ github.ref_name }}
 
   release-chart:
-    needs: verify-app
+    needs: release-image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

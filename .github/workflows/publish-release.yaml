@@ -44,7 +44,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ${{ steps.repo_name.outputs.lowercase }}:${{ github.ref_name }}
+        tags: ${{ github.ref_name }}
 
   release-chart:
     needs: verify-app
@@ -70,4 +70,4 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          charts_repo_url: "https://sambatv.github.io/charts"
+          charts_repo_url: "https://sambatv.github.io/spaces-operator"

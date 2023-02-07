@@ -37,3 +37,7 @@ dist/
 
 # Temporary files
 tmp/
+
+# chart-releaser files
+.cr-index/
+.cr-release-packages/

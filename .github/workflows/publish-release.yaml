@@ -2,9 +2,8 @@ name: Publish release
 
 on:
   push:
-    tags:
-      - 1.*
-      - 0.*
+    branches:
+      - main
 
 jobs:
   verify-app:

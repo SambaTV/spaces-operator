@@ -5,7 +5,6 @@ metadata:
     {{- include "spaces-operator.labels" . | nindent 4 }}
     control-plane: controller-manager
   name: spaces-operator-controller-manager
-  namespace: spaces-operator-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -14,7 +13,6 @@ metadata:
     {{- include "spaces-operator.labels" . | nindent 4 }}
     control-plane: controller-manager
   name: spaces-operator-leader-election-role
-  namespace: spaces-operator-system
 rules:
 - apiGroups:
   - ""
@@ -241,7 +239,6 @@ metadata:
     {{- include "spaces-operator.labels" . | nindent 4 }}
     control-plane: controller-manager
   name: spaces-operator-leader-election-rolebinding
-  namespace: spaces-operator-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -249,7 +246,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: spaces-operator-controller-manager
-  namespace: spaces-operator-system
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -265,4 +262,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: spaces-operator-controller-manager
-  namespace: spaces-operator-system
+  namespace: {{ .Release.Namespace }}

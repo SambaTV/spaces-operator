@@ -5,7 +5,6 @@ metadata:
     {{- include "spaces-operator.labels" . | nindent 4 }}
     control-plane: controller-manager
   name: spaces-operator-controller-manager
-  namespace: spaces-operator-system
 spec:
   replicas: 1
   selector:

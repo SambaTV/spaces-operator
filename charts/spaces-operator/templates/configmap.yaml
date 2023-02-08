@@ -15,7 +15,6 @@ data:
 kind: ConfigMap
 metadata:
   name: spaces-operator-manager-config
-  namespace: spaces-operator-system
   labels:
     {{- include "spaces-operator.labels" . | nindent 4 }}
     control-plane: controller-manager

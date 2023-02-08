@@ -11,8 +11,8 @@ IMG_NAME ?= sambatv/${APP_NAME}
 IMG_TAG ?= ${APP_VERSION}
 IMG ?= ${IMG_REGISTRY}/${IMG_NAME}:${IMG_TAG}
 
-# Configure chart identity from app identity.
-HELM_CHART = charts/${APP_NAME}
+# Configure helm chart identity from app identity.
+CHART = charts/${APP_NAME}
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
@@ -164,20 +164,18 @@ docker-push: ## Push docker image to repository
 
 ##@ Chart
 
-HELM_CHART = charts/$(APP_NAME)
-
 .PHONY: chart-build
-chart-build: manifests kustomize ## Build helm chart
-	scripts/build-operator-helm-chart --src config/default --dst $(HELM_CHART)
+chart-build: manifests ## Build helm chart
+	scripts/build-operator-helm-chart --src config/default --dst $(CHART)
 
 .PHONY: chart-lint
 chart-lint: ## Lint helm chart
-	helm lint $(HELM_CHART)
+	helm lint $(CHART)
 
 .PHONY: chart-template
 chart-template: ## Template helm chart
-	helm template $(APP_NAME) $(HELM_CHART)
+	helm template $(APP_NAME) $(CHART)
 
 .PHONY: chart-install
 chart-install: ## Install helm chart with default values
-	helm install $(APP_NAME) $(HELM_CHART) --namespace $(APP_NAME) --create-namespace
+	helm install $(APP_NAME) $(CHART) --namespace $(APP_NAME) --create-namespace

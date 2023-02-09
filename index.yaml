@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   spaces-operator:
   - apiVersion: v2
+    appVersion: 0.60.9
+    created: "2023-02-09T02:22:08.009999307Z"
+    description: Kubernetes operator to declaratively manage team RBAC spaces
+    digest: 36c440baf84195d13939c68682b2d83b9fc1f165102f8aaa0deee902f6568944
+    name: spaces-operator
+    type: application
+    urls:
+    - https://github.com/SambaTV/spaces-operator/releases/download/spaces-operator-0.60.9/spaces-operator-0.60.9.tgz
+    version: 0.60.9
+  - apiVersion: v2
     appVersion: 0.60.8
     created: "2023-02-08T16:27:25.849577194Z"
     description: Kubernetes operator to declaratively manage team RBAC spaces
@@ -41,4 +51,4 @@ entries:
     urls:
     - https://github.com/SambaTV/spaces-operator/releases/download/spaces-operator-0.60.4/spaces-operator-0.60.4.tgz
     version: 0.60.4
-generated: "2023-02-08T16:27:25.849590994Z"
+generated: "2023-02-09T02:22:08.010016907Z"

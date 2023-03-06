@@ -84,10 +84,10 @@ affinity: {}
 # Controller-specific config
 
 leaderElect:
-  enabled: true
+  enabled: false
 
 podDisruptionBudget:
-  enabled: true
+  enabled: false
 
 prometheus:
-  enabled: true
+  enabled: false

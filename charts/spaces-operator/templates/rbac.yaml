@@ -178,6 +178,35 @@ rules:
   - list
   - watch
 - apiGroups:
+  - external-secrets.io
+  resources:
+  - externalsecrets
+  - secretstores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - alertmanagerconfigs
+  - alertmanagers
+  - podmonitors
+  - probes
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - networking.k8s.io
   resources:
   - ingressclasses
@@ -212,6 +241,18 @@ rules:
   - roles
   verbs:
   - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - sloth.slok.dev
+  resources:
+  - prometheusservicelevels
+  verbs:
+  - create
+  - delete
   - get
   - list
   - patch
@@ -273,3 +314,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: spaces-operator-controller-manager
+  namespace: {{ .Release.Namespace }}

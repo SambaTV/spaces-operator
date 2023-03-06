@@ -90,4 +90,4 @@ podDisruptionBudget:
   enabled: true
 
 prometheus:
-  enabled: false
+  enabled: true

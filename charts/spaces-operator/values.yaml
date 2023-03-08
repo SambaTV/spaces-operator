@@ -98,8 +98,6 @@ prometheus:
 # All permissions for Team roles must be granted to the operator Team controller.
 clusterrole:
   rules:
-    # More api groups can be configured, however
-    more: []
     # The core api groups shouldn't need to be reconfigured
     core:
     - apiGroups:
@@ -265,3 +263,6 @@ clusterrole:
       - patch
       - update
       - watch
+
+    # More api groups can be configured, however
+    more: []

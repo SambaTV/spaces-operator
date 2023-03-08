@@ -82,9 +82,9 @@ rules:
   - patch
   - update
   # Add core rules configured in values
-  {{- toYaml .Values.clusterrole.rules.core }}
+{{ toYaml .Values.clusterrole.rules.core }}
   # Add more rules configured in values
-  {{- toYaml .Values.clusterrole.rules.more }}
+{{ toYaml .Values.clusterrole.rules.more }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

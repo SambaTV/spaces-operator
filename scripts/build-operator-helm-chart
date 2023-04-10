@@ -37,7 +37,7 @@ CHART = f"{CHARTS_DIR}/{APP_NAME}"
 CHART_YAML_FILE = f"{CHART}/Chart.yaml"
 VALUES_YAML_FILE = f"{CHART}/values.yaml"
 
-IMAGE_NAME = f"docker.io/sambatv/{APP_NAME}"
+IMAGE_NAME = f"ghcr.io/sambatv/{APP_NAME}"
 
 # -----------------------------------------------------------------------------
 # Define constants used to identify and substitute text fragments in the

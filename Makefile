@@ -6,7 +6,7 @@ APP_NAME ?= $(shell cat APP)
 APP_VERSION ?= $(shell cat VERSION)
 
 # Configure image identity from project metadata and app identity.
-IMG_REGISTRY ?= docker.io
+IMG_REGISTRY ?= ghcr.io
 IMG_NAME ?= sambatv/${APP_NAME}
 IMG_TAG ?= ${APP_VERSION}
 IMG ?= ${IMG_REGISTRY}/${IMG_NAME}:${IMG_TAG}

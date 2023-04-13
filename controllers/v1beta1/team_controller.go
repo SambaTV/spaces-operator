@@ -47,7 +47,7 @@ type TeamReconciler struct {
 // +kubebuilder:rbac:groups=apps,resources=controllerrevisions;daemonsets;daemonsets/status;deployments;deployments/scale;deployments/status;replicasets;replicasets/scale;replicasets/status;statefulsets;statefulsets/scale;statefulsets/status,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=autoscaling,resources=horizontalpodautoscalers;horizontalpodautoscalers/status,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=batch,resources=cronjobs;cronjobs/status;jobs;jobs/status,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings;roles;rolebindings,verbs=get;list;watch;create;update;patch
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings;roles;rolebindings,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=networking.k8s.io,resources=ingressclasses;ingresses;ingresses/status,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=spaces.samba.tv,resources=teams,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=spaces.samba.tv,resources=teams/status,verbs=get;update;patch

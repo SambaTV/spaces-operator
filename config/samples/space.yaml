@@ -1,16 +1,16 @@
 apiVersion: spaces.samba.tv/v1beta1
-kind: Team
+kind: Space
 metadata:
-  name: test-sample
+  name: space-sample
 spec:
   namespaces:
     - sample-ns
   username: sample
-  groups:
-    - sample:group1
-    - sample:group2
   description: A sample team
   email: sample.user@example.com
+  roles:
+    - sample:role1
+    - sample:role2
   clusterRoles:
     - sample:cluster-role1
     - sample:cluster-role2

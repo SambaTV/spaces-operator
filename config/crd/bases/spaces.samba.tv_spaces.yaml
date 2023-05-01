@@ -6,36 +6,33 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: teams.spaces.samba.tv
+  name: spaces.spaces.samba.tv
 spec:
   group: spaces.samba.tv
   names:
-    kind: Team
-    listKind: TeamList
-    plural: teams
-    singular: team
+    kind: Space
+    listKind: SpaceList
+    plural: spaces
+    singular: space
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.namespace
-      name: Namespace
+    - jsonPath: .spec.username
+      name: Username
       type: string
-    - jsonPath: .spec.groups
-      name: Groups
-      type: array
+    - jsonPath: .spec.namespaces
+      name: Namespaces
+      type: string
     - jsonPath: .spec.clusterRoles
       name: ClusterRoles
-      type: array
-    - jsonPath: .spec.description
-      name: Description
       type: string
-    - jsonPath: .spec.email
-      name: Email
+    - jsonPath: .spec.roles
+      name: Roles
       type: string
     name: v1beta1
     schema:
       openAPIV3Schema:
-        description: Team is the Schema for the teams API
+        description: Space is the Schema for the spaces API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -50,35 +47,40 @@ spec:
           metadata:
             type: object
           spec:
-            description: TeamSpec defines the desired state of Team
+            description: SpaceSpec defines the desired state of Space
             properties:
               clusterRoles:
-                description: The names of ClusterRoles to bind to the Team namespace
+                description: The names of ClusterRoles to bind to the Space namespace
                 items:
                   type: string
                 type: array
               description:
-                description: A useful description
+                description: A useful description of the Space
                 type: string
               email:
-                description: The email address of a contact person for the Kubernetes
-                  user
+                description: The email address of a contact person for the Space
                 type: string
-              groups:
-                description: The names of the Kubernetes Groups associated with team
-                  members
+              namespaces:
+                description: The namespaces of the Space resources
                 items:
                   type: string
                 type: array
-              namespace:
-                description: The namespace of the Team resources
+              roles:
+                description: The names of Roles to bind to the Space namespaces
+                items:
+                  type: string
+                type: array
+              username:
+                description: The name of the Kubernetes user associated with the Space
                 type: string
             required:
             - clusterRoles
-            - namespace
+            - namespaces
+            - roles
+            - username
             type: object
           status:
-            description: TeamStatus defines the observed state of Team
+            description: SpaceStatus defines the observed state of Space
             type: object
         type: object
     served: true

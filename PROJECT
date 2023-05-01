@@ -12,4 +12,13 @@ resources:
   kind: Team
   path: github.com/sambatv/spaces-operator/apis/v1beta1
   version: v1beta1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: spaces.samba.tv
+  group: spaces.samba.tv
+  kind: Space
+  path: github.com/sambatv/spaces-operator/api/v1beta1
+  version: v1beta1
 version: "3"

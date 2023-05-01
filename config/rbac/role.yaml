@@ -161,6 +161,33 @@ rules:
 - apiGroups:
   - spaces.samba.tv
   resources:
+  - spaces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - spaces.samba.tv
+  resources:
+  - spaces/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - spaces.samba.tv
+  resources:
+  - spaces/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - spaces.samba.tv
+  resources:
+  - spaces
   - teams
   verbs:
   - create
@@ -173,12 +200,14 @@ rules:
 - apiGroups:
   - spaces.samba.tv
   resources:
+  - spaces/finalizers
   - teams/finalizers
   verbs:
   - update
 - apiGroups:
   - spaces.samba.tv
   resources:
+  - spaces/status
   - teams/status
   verbs:
   - get

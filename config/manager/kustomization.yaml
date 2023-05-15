@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: ghcr.io/sambatv/spaces-operator
-  newTag: 0.80.0-rc7
+  newTag: 0.80.0
